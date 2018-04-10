@@ -1,0 +1,7 @@
+// 阴影效果
+@mixin box-shadow($shadows...) {
+  -webkit-box-shadow: $shadows;
+     -moz-box-shadow: $shadows;
+       -o-box-shadow: $shadows;
+          box-shadow: $shadows;
+}
