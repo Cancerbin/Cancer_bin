@@ -1,5 +1,5 @@
-// 阴影效果
-@mixin box-shadow($shadows...) {
+// 浏览器兼容
+@mixin browser($shadows...) {
   -webkit-box-shadow: $shadows;
      -moz-box-shadow: $shadows;
        -o-box-shadow: $shadows;
