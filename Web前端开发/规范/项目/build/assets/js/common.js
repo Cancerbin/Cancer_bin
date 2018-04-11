@@ -18,6 +18,7 @@ common.date = {
       "S" : time.getMilliseconds() //millisecond
     }
     if(/(y+)/.test(format)) {
+      format = format.replace(RegExp.$1,(time.getFullYear()+"").substr(4 - RegExp.$1.length));
     }
     for(var k in o) {
       if(new RegExp("("+ k +")").test(format)) {
