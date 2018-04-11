@@ -202,6 +202,25 @@ common.data = {
       }
     }
     return newobj;
+  },
+  /* 金额格式 */
+  formatMoney: function(money) {
+    var moneyArr = parseFloat(money).toFixed(2).toString().split(".");
+    var integer = moneyArr[0];
+    var decimal = moneyArr[1];
+    if(integer.length > 3) {
+      var mod = integer.length % 3;
+      var format = (mod==0?'':(integer.substring(0, mod)));
+      for(var i=0; i<Math.floor(integer.length/3); i++) {
+        if(mod == 0) {
+          format += integer.substring(mod + 3 * i, mod + 3 * i + 3);
+        }else {
+          format += ',' + integer.substring(mod + 3 * i, mod + 3 * i + 3);
+        }
+      }
+      integer = format;
+    }
+    return integer + "." + decimal;
   }
 }
 
