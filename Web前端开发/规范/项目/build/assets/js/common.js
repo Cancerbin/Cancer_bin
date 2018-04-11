@@ -1,7 +1,7 @@
 var common = {};
 
 /************************************************************
- * 日期函数
+ * 日期处理
  ************************************************************/
 common.date = {
   /* 格式转换 */
@@ -28,9 +28,9 @@ common.date = {
     return format;
   },
   /* 获取n天之前的日期 */
-  getRecentDay: function(num) {
+  getRecentDay: function(days) {
     var todayDate = new Date();
-    var demandDate = new Date(todayDate.getTime() - (num * 24 * 60 * 60 * 1000));
+    var demandDate = new Date(todayDate.getTime() - (days * 24 * 60 * 60 * 1000));
     return demandDate;
   },
   /* 获取两个日期之间的日期 */
@@ -47,63 +47,13 @@ common.date = {
 }
 
 /************************************************************
- * 本地缓存
+ * 本地cookie
  ************************************************************/
-common.storage = {
-  cookies: {
-
-  }
-}
-
-// 订阅者模式
-common.topic = {
-  init: function(name) {
-    var container = this.container;
-    if(container[name] == undefined) {
-      container[name] = {
-        // 订阅者列表
-        subscribers: {},
-        // 订阅函数
-        subscribe: function(callback, topics) {
-          var tmpl = this;
-          for(var i in topics) {
-            var topic = topics[i];
-            if(tmpl.subscribers[topic] == undefined) {
-              tmpl.subscribers[topic] = [];
-            }
-            for(var j = tmpl.subscribers[topic].length - 1; j >= 0; j--) {
-              if(tmpl.subscribers[topic][j] == callback) {
-                return;
-              }
-            }
-            tmpl.subscribers[topic][tmpl.subscribers[topic].length] = callback;
-          }
-        },
-        publish: function(topic) {
-          var tmpl = this;
-          if(tmpl.subscribers[topic] != undefined) {
-            for(var i = 0; i < tmpl.subscribers[topic].length; i++) {
-              if(typeof tmpl.subscribers[topic][i] === 'function') {
-                try {
-                  tmpl.subscribers[topic][i]();
-                } catch (e) {}
-              }
-            }
-          }
-        }
-      }
-    }
-    return container[name];
-  },
-  container: {}
-}
-
-// Cookie值的设置、获取和删除
 common.cookies = {
-  set: function(key, value, expiredays) {
-    var exp = new Date();
-    exp.setTime(exp.getTime() + (expiredays * 24 * 60 * 60 * 1000));
-    document.cookie = key + "=" + escape(value) + ((expiredays == null) ? "" : ";expires=" + exp.toUTCString()) + ";path=/";
+  set: function(key, value, days) {
+    var todayDate = new Date();
+    todayDate.setTime(todayDate.getTime() + (days * 24 * 60 * 60 * 1000));
+    document.cookie = key + "=" + escape(value) + ((days == null) ? "" : ";expires=" + todayDate.toUTCString()) + ";path=/";
   },
   get: function(key) {
     if (document.cookie.length > 0) {
@@ -119,58 +69,27 @@ common.cookies = {
   },
   del: function(key) {
     var cookies = this;
-    var exp = new Date();
-    exp.setTime(exp.getTime() - 1);
+    var todayDate = new Date();
+    todayDate.setTime(todayDate.getTime() - 1);
     var cval = cookies.get(key);
-    if(cval!=null)
-      document.cookie= key + "="+cval+";expires="+exp.toGMTString();
-  }
-}
-
-// 浏览器
-common.browser = {
-  /**
-   * 获取浏览器传递的参数
-   * key：参数名称
-   */
-  getParams: function(key) {
-    var reg = new RegExp("(^|&)"+ key +"=([^&]*)(&|$)");
-     var r = window.location.search.substr(1).match(reg);
-     if(r!=null)return unescape(r[2]); return null;
-  }
-}
-
-// 对象处理
-common.object = {
-  /**
-   * 克隆一个全新的对象
-   * obj：传入的对象值
-   */
-  clone: function(obj) {
-    var cloneFunc = this.clone;
-    var str, newobj = obj.constructor === Array ? [] : {};
-    if(typeof obj !== 'object'){
-      return;
-    }else if(window.JSON){
-      str = JSON.stringify(obj),
-      newobj = JSON.parse(str);
-    }else {
-      for(var i in obj){
-        newobj[i] = typeof obj[i] === 'object' ? cloneFunc(obj[i]) : obj[i]; 
-      }
+    if(cval!=null) {
+      document.cookie = key + "="+cval+";expires="+todayDate.toGMTString();
     }
-    return newobj;
   }
 }
 
-// 校验数据
+/************************************************************
+ * 数据校验
+ ************************************************************/
 common.verify = {
-  mobile: function(telNum) {
-    var reg = /^(0|86|17951)?(13[0-9]|15[012356789]|17[678]|18[0-9]|14[57])[0-9]{8}$/;
-    return reg.test(telNum);
+  /* 手机号码校验 */
+  cellPhone: function(phone) {
+    var reg = /^(13[0-9]|14[5|7]|15[0|1|2|3|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9])\d{8}$/;
+    return reg.test(phone);
   },
-  idCard: function(cardNum) {
-    cardNum = cardNum.toString().toUpperCase();
+  /* 身份证校验 */
+  idCard: function(card) {
+    var cardNum = card.toString().toUpperCase();
     // 验证是否为18位或者15位
     if (!(/(^\d{15}$)|(^\d{17}([0-9]|X)$)/.test(cardNum))) {
       return false;
@@ -261,5 +180,83 @@ common.verify = {
       }
     }
     return false;
+  }
+}
+
+/************************************************************
+ * 数据处理
+ ************************************************************/
+common.data = {
+  /* 克隆对象 */
+  clone: function(obj) {
+    var cloneFunc = this.clone;
+    var str, newobj = obj.constructor === Array ? [] : {};
+    if(typeof obj !== 'object'){
+      return;
+    }else if(window.JSON){
+      str = JSON.stringify(obj),
+      newobj = JSON.parse(str);
+    }else {
+      for(var i in obj){
+        newobj[i] = typeof obj[i] === 'object' ? cloneFunc(obj[i]) : obj[i]; 
+      }
+    }
+    return newobj;
+  }
+}
+
+/************************************************************
+ * 订阅者模式
+ ************************************************************/
+common.topic = {
+  init: function(name) {
+    var container = this.container;
+    if(container[name] == undefined) {
+      container[name] = {
+        subscribers: {},
+        subscribe: function(callback, topics) {
+          var tmpl = this;
+          for(var i in topics) {
+            var topic = topics[i];
+            if(tmpl.subscribers[topic] == undefined) {
+              tmpl.subscribers[topic] = [];
+            }
+            for(var j = tmpl.subscribers[topic].length - 1; j >= 0; j--) {
+              if(tmpl.subscribers[topic][j] == callback) {
+                return;
+              }
+            }
+            tmpl.subscribers[topic][tmpl.subscribers[topic].length] = callback;
+          }
+        },
+        publish: function(topic) {
+          var tmpl = this;
+          if(tmpl.subscribers[topic] != undefined) {
+            for(var i = 0; i < tmpl.subscribers[topic].length; i++) {
+              if(typeof tmpl.subscribers[topic][i] === 'function') {
+                try {
+                  tmpl.subscribers[topic][i]();
+                } catch (e) {}
+              }
+            }
+          }
+        }
+      }
+    }
+    return container[name];
+  },
+  container: {}
+}
+
+/************************************************************
+ * 网址
+ ************************************************************/
+common.url = {
+  /* 获取网址参数 */
+  getParams: function(key) {
+    var reg = new RegExp("(^|&)"+ key +"=([^&]*)(&|$)");
+    var r = window.location.search.substr(1).match(reg);
+    if(r!=null) return unescape(r[2]);
+    return null;
   }
 }
