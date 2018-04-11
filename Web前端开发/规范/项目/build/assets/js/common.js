@@ -1,21 +1,21 @@
 var common = {};
 
-// 日期函数
+/************************************************************
+ * 日期函数
+ ************************************************************/
 common.date = {
-  /**
-   * 转换日期格式
-   * format：需要转化的格式，例如（yyyy-MM-dd hh:mm:ss）
-   * time：传入的日期，例如（new Date()）
-   */
+  /* 格式转换 */
   formatTime: function(format, time) {
+    // format：需要转化的格式，例如（yyyy-MM-dd hh:mm:ss）
+    // time: 传入的日期对象，例如（new Date())
     var o = {
-      "M+": time.getMonth()+1, //month
-      "d+": time.getDate(),    //day
-      "h+": time.getHours(),   //hour
-      "m+": time.getMinutes(), //minute
-      "s+": time.getSeconds(), //second
-      "q+": Math.floor((time.getMonth()+3)/3),  //quarter
-      "S" : time.getMilliseconds() //millisecond
+      "M+": time.getMonth()+1,
+      "d+": time.getDate(),
+      "h+": time.getHours(),
+      "m+": time.getMinutes(),
+      "s+": time.getSeconds(),
+      "q+": Math.floor((time.getMonth()+3)/3),
+      "S" : time.getMilliseconds()
     }
     if(/(y+)/.test(format)) {
       format = format.replace(RegExp.$1,(time.getFullYear()+"").substr(4 - RegExp.$1.length));
@@ -26,6 +26,32 @@ common.date = {
       }
     }
     return format;
+  },
+  /* 获取n天之前的日期 */
+  getRecentDay: function(num) {
+    var todayDate = new Date();
+    var demandDate = new Date(todayDate.getTime() - (num * 24 * 60 * 60 * 1000));
+    return demandDate;
+  },
+  /* 获取两个日期之间的日期 */
+  getBetweenDayList: function(beginTime, endTime) {
+    var endDate = new Date(endTime);
+    var modifyDate = new Date(beginTime);
+    var dateArr = [];
+    while(endDate.getTime() >= modifyDate.getTime()) {
+      dateArr.push(common.date.formatTime("yyyyMMdd", modifyDate));
+      modifyDate.setDate(modifyDate.getDate() + 1);
+    }
+    return dateArr;
+  }
+}
+
+/************************************************************
+ * 本地缓存
+ ************************************************************/
+common.storage = {
+  cookies: {
+
   }
 }
 
