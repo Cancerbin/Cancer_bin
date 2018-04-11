@@ -212,7 +212,7 @@ common.data = {
       var mod = integer.length % 3;
       var format = (mod==0?'':(integer.substring(0, mod)));
       for(var i=0; i<Math.floor(integer.length/3); i++) {
-        if(mod == 0) {
+        if(mod == 0 && i == 0) {
           format += integer.substring(mod + 3 * i, mod + 3 * i + 3);
         }else {
           format += ',' + integer.substring(mod + 3 * i, mod + 3 * i + 3);
