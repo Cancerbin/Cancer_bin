@@ -221,6 +221,10 @@ common.data = {
       integer = format;
     }
     return integer + "." + decimal;
+  },
+  /* 获取字节长度 */
+  byteLength: function(str) {
+    return str.replace(/[^\x00-\xff]/g,"aa").length;
   }
 }
 
